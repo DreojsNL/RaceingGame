@@ -28,11 +28,12 @@ public class aicarcontroller : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
+        fuel--;
         if (fuel > 0)
         {
-            if (fuel < 10)
+            if (fuel < 100)
             {
                 speed = lowfuelspeed;
             }
@@ -40,7 +41,7 @@ public class aicarcontroller : MonoBehaviour
             {
                 speed = 0;
             }
-            if (fuel > 10)
+            if (fuel > 100)
             {
                 speed = normalspeed;
             }
@@ -88,4 +89,5 @@ public class aicarcontroller : MonoBehaviour
                 
         }
     }
+    
 }
