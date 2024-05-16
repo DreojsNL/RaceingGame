@@ -43,7 +43,7 @@ public class aicarcontroller : MonoBehaviour
     void FixedUpdate()
     {
         
-        currentaccel = accel * Input.GetAxis("Vertical");
+        currentaccel = accel * 1;
 
         if (breaking)
         {
@@ -67,21 +67,31 @@ public class aicarcontroller : MonoBehaviour
 
 
         var dir = checkpoints[current].position - gameObject.transform.position;
-        var angle = (Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg);
-        //transform.rotation = Quaternion.AngleAxis(angle, -Vector3.up);
+        
+        
         var lookrot = Quaternion.LookRotation(dir);
-        
-        Debug.Log(angle);
+        Vector3 localtoaicheckpoint = gameObject.transform.InverseTransformPoint(checkpoints[current].transform.position);
 
-        
-        if (lookrot.y > transform.rotation.y)
+        Debug.Log(lookrot.y + transform.rotation.y);
+
+        if (localtoaicheckpoint.x > 0)
         {
             currentturnpower = maxturnpower * -1;
         }
-        if (lookrot.y < transform.rotation.y)
+        else if (localtoaicheckpoint.x < 0)
         {
             currentturnpower = maxturnpower * 1;
         }
+
+
+
+
+
+
+
+
+
+
         frontleft.steerAngle = currentturnpower;
         frontright.steerAngle = currentturnpower;
 
@@ -93,13 +103,18 @@ public class aicarcontroller : MonoBehaviour
         {
             if (current >= checkpoints.ToArray().Length -1)
             {
+                foreach(var check in checkpoints)
+                {
+                    check.gameObject.SetActive(true);
+                }
                 current = 0;
                 laps += 1;
-                //checkpoints.Remove(checkpoints[0]);
-                //Destroy(other.gameObject);
+                
             }
             else
             {
+                checkpoints[current].gameObject.SetActive(false);
+
                 current += 1;
             }
                 
