@@ -4031,7 +4031,7 @@ GameObject:
   - component: {fileID: 2159678220743758722}
   - component: {fileID: 187186618}
   m_Layer: 0
-  m_Name: F1Car
+  m_Name: aicar
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
