@@ -352,6 +352,9 @@ MonoBehaviour:
   engineIsBroke: 0
   engineOn: 0
   tractionControlOn: 1
+  gasInput: 0
+  brakeInput: 0
+  ignitonInput: 0
   shiftInput: 0
   currentGear: 1
   gearRatios:
@@ -4227,7 +4230,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 424723af7ceaaf845a1a91bf92529334, type: 2}
+      objectReference: {fileID: 2100000, guid: 4dfc7852486924c42ba5baa9ea74d32b, type: 2}
     - target: {fileID: 919132149155446097, guid: a56f03781382fee4aa7d02c8509baeed,
         type: 3}
       propertyPath: m_Name
@@ -5861,7 +5864,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 424723af7ceaaf845a1a91bf92529334, type: 2}
+      objectReference: {fileID: 2100000, guid: 4dfc7852486924c42ba5baa9ea74d32b, type: 2}
     - target: {fileID: 919132149155446097, guid: a56f03781382fee4aa7d02c8509baeed,
         type: 3}
       propertyPath: m_Name
