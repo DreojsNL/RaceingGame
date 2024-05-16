@@ -32,6 +32,9 @@ public class CarController : MonoBehaviour
     public float idleRPM = 1000f;
     public float maxRPM = 6000f;
     public float maxTurnAngle = 15;
+    public BreakingPart spolierPart;
+    public BreakingPart lipPart;
+    private float kmhNumber;
 
     // Engine related variables
     private int shiftRandom;
@@ -47,12 +50,14 @@ public class CarController : MonoBehaviour
     private float clutch;
     private float clutchInvers;
     private float currentAcceleration = 0f;
-    private float currentBrakeForce = 0f;
     private float currentRPM = 0f;
     private float currentTurnAngle = 0f;
+    private bool ignitionProcessed = false;
     public int currentGear = 1;
     public float steeringSensitivity = 1.0f;
     public float[] gearRatios = { 3.5f, 2.5f, 1.8f, 1.4f };
+    private bool isReversed;
+    public float downForce;
 
     private Rigidbody rb;
 
@@ -63,12 +68,27 @@ public class CarController : MonoBehaviour
 
     private void Update()
     {
-      
+        kmhNumber = rb.velocity.magnitude * 3.6f;
         UpdateSteeringWheel();
         ignitonInput = Input.GetAxis("Ignition");
         brakeInput = Input.GetAxis("Brake");
         shiftRandom = Random.Range(1000, 2500);
         shiftInput = Input.GetAxis("Shitft");
+        if(!lipPart.broken && !spolierPart.broken)
+        {
+            downForce = 1f;
+            rb.drag = 0.05f;
+        }
+        else if(!lipPart.broken || !spolierPart.broken)
+        {
+            downForce = .5f;
+            rb.drag = 0.1f;
+        }
+        else
+        {
+            rb.drag = 0.12f;
+            downForce = 0f;
+        }
         if (tractionControlOn)
         {
             tcText.text = "TC:on";
@@ -89,11 +109,16 @@ public class CarController : MonoBehaviour
         {
             engineStatus.text = "Engine Status:broken";
         }
-        if (ignitonInput == 1 && clutch == 2) // startCar
+        if (ignitonInput == 1 && clutch == 2 && !ignitionProcessed)
         {
             engineOn = !engineOn;
+            ignitionProcessed = true; // Mark the ignition input as processed
         }
-        if(ignitonInput == 0 && clutch == 2 && currentRPM == 0)
+        else if (!(ignitonInput == 1 && clutch == 2))
+        {
+            ignitionProcessed = false; // Reset the flag if the condition is not met
+        }
+        if (ignitonInput == 0 && clutch == 2 && currentRPM == 0)
         {
             engineOn = false;
         }
@@ -102,8 +127,11 @@ public class CarController : MonoBehaviour
         {
             currentRPM = Mathf.Lerp(currentRPM, 0f, 30 * Time.deltaTime);
         }
-
-        gearText.text = currentGear.ToString();
+        if (!isReversed)
+        {
+            gearText.text = currentGear.ToString();
+        }
+        
 
         clutchInvers = Input.GetAxis("Clutch");
         clutch = 1f - clutchInvers;
@@ -138,7 +166,17 @@ public class CarController : MonoBehaviour
     }
     void ShiftUp()
     {
-        if (currentGear <= maxGear && clutch == 2) // Assuming maxGear is the maximum gear
+        if (isReversed && clutch == 2)
+        {
+            acceleration = acceleration * -1;
+            isReversed = false;
+            currentGear--;
+            if (!engineIsBroke)
+            {
+                currentRPM -= shiftRandom;
+            }
+        }
+        if (currentGear <= maxGear && clutch == 2 && !isReversed) // Assuming maxGear is the maximum gear
         {
             currentGear++;
             if (!engineIsBroke)
@@ -150,7 +188,11 @@ public class CarController : MonoBehaviour
 
     void ShiftDown()
     {
-        if (currentGear > 1 && clutch == 2)
+        if (isReversed && clutch == 2)
+        {
+            Debug.Log("No");
+        }
+        if (currentGear > 1 && clutch == 2 && !isReversed)
         {
             currentGear--;
             if (!engineIsBroke)
@@ -158,9 +200,16 @@ public class CarController : MonoBehaviour
                 currentRPM += shiftRandom;
             }
         }
+        else if(clutch == 2)
+        {
+            isReversed = true;
+            gearText.text = "R";
+            acceleration = acceleration * -1;
+        }
     }
     private void FixedUpdate()
     {
+        ApplyDownforce();
         string currentRPMstring = currentRPM.ToString(format: "0000");
         rmpText.text = "RPM:" + currentRPMstring;
 
@@ -261,13 +310,13 @@ public class CarController : MonoBehaviour
 
     private void EngineBroke()
     {
-        currentBrakeForce = 3000;
+        brakeForce = 3000;
+        ApplyBrakes();
         engineOn = false;
         engineIsBroke = true;
     }
     private void ApplyBrakes()
     {
-        Debug.Log("baking");
         // Apply brakes to all wheels
         frontRight.brakeTorque = brakeForce;
         frontLeft.brakeTorque = brakeForce;
@@ -289,5 +338,26 @@ public class CarController : MonoBehaviour
             rotationAngle,
             steeringWheel.transform.localRotation.eulerAngles.z
         );
+    }
+    private void ApplyDownforce()
+    {
+        // Calculate downforce based on car parameters and current speed
+        float currentDownforce = rb.velocity.magnitude * rb.velocity.magnitude * downForce;
+
+        // Apply downforce in the opposite direction of the car's velocity (to simulate aerodynamic drag)
+        rb.AddForce(-transform.up * currentDownforce);
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (kmhNumber >= 100)
+        {
+            Debug.Log("Crash");
+            lipPart.broken = true;
+        }
+        else if(kmhNumber >= 220)
+        {
+            Debug.Log("Crash");
+            spolierPart.broken = true;
+        }
     }
 }
