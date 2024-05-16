@@ -58,30 +58,47 @@ public class CarController : MonoBehaviour
     public float[] gearRatios = { 3.5f, 2.5f, 1.8f, 1.4f };
     private bool isReversed;
     public float downForce;
+    public AudioSource engineAudio;
+    public float minPitch = 0.5f;
+    public float maxPitch = 2.0f;
 
     private Rigidbody rb;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        engineAudio = GetComponent<AudioSource>();
     }
 
     private void Update()
     {
+        if (engineIsBroke)
+        {
+            engineOn = false;
+        }
         kmhNumber = rb.velocity.magnitude * 3.6f;
+        UpdateEngineAudioPitch();
         UpdateSteeringWheel();
         ignitonInput = Input.GetAxis("Ignition");
         brakeInput = Input.GetAxis("Brake");
         shiftRandom = Random.Range(1000, 2500);
         shiftInput = Input.GetAxis("Shitft");
+        if (!engineOn)
+        {
+            engineAudio.enabled = false;
+        }
+        else
+        {
+            engineAudio.enabled = true;
+        }
         if(!lipPart.broken && !spolierPart.broken)
         {
-            downForce = 1f;
+            downForce = 4f;
             rb.drag = 0.05f;
         }
         else if(!lipPart.broken || !spolierPart.broken)
         {
-            downForce = .5f;
+            downForce = 2f;
             rb.drag = 0.1f;
         }
         else
@@ -206,6 +223,17 @@ public class CarController : MonoBehaviour
             gearText.text = "R";
             acceleration = acceleration * -1;
         }
+    }
+    private void UpdateEngineAudioPitch()
+    {
+        // Normalize current RPM within the range of idleRPM and maxRPM
+        float normalizedRPM = Mathf.InverseLerp(idleRPM, maxRPM, currentRPM);
+
+        // Map the normalized RPM to the pitch range
+        float targetPitch = Mathf.Lerp(minPitch, maxPitch, normalizedRPM);
+
+        // Set the audio source pitch
+        engineAudio.pitch = targetPitch;
     }
     private void FixedUpdate()
     {
@@ -349,15 +377,26 @@ public class CarController : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (kmhNumber >= 100)
+        // Get the total force applied by the collision
+        float collisionForce = collision.impulse.magnitude / Time.fixedDeltaTime;
+
+        // Determine which part should break based on collision force
+        if (collisionForce >= 1000) // Adjust the threshold as needed
         {
-            Debug.Log("Crash");
-            lipPart.broken = true;
-        }
-        else if(kmhNumber >= 220)
-        {
-            Debug.Log("Crash");
-            spolierPart.broken = true;
+            Debug.Log("Collision force: " + collisionForce);
+
+            // Decide which part should break based on collision force
+            if (collisionForce >= 2000)
+            {
+                Debug.Log("Crash - Spoiler broken");
+                spolierPart.broken = true;
+            }
+            else
+            {
+                Debug.Log("Crash - Lip broken");
+                lipPart.broken = true;
+            }
         }
     }
+
 }
