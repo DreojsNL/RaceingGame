@@ -387,7 +387,7 @@ public class CarController : MonoBehaviour
             Debug.Log("Crash - Lip broken");
             lipPart.broken = true;
             // Decide which part should break based on collision force
-            if (collisionForce >= 2000)
+            if (collisionForce >= 1000000)
             {
                 Debug.Log("Crash - Spoiler broken");
                 spolierPart.broken = true;

@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using UnityEditor.SearchService;
 using UnityEngine.SceneManagement;
 
 public class Timer : MonoBehaviour
@@ -13,10 +12,13 @@ public class Timer : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.G))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            // Reset best time
+            PlayerPrefs.DeleteKey("BestTime");
+            bestTime = Mathf.Infinity;
         }
+
         if (isTiming)
         {
             // Update elapsed time
@@ -47,7 +49,6 @@ public class Timer : MonoBehaviour
             bestTimeText.text = "Best: 0'00.000";
         }
     }
-
 
     void OnTriggerEnter(Collider other)
     {
