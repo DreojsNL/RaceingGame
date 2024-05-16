@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CarController : MonoBehaviour
 {
@@ -32,10 +33,16 @@ public class CarController : MonoBehaviour
     public float maxTurnAngle = 15;
 
     // Engine related variables
+    private int shiftRandom;
+    private bool shiftInputPressed = false;
+    private int maxGear = 5;
     public bool engineIsBroke;
     public bool engineOn;
     public bool tractionControlOn = true; // Traction Control toggle
-    private float gasInput;
+    public float gasInput;
+    public float brakeInput;
+    public float ignitonInput;
+    public float shiftInput;
     private float clutch;
     private float clutchInvers;
     private float currentAcceleration = 0f;
@@ -54,7 +61,11 @@ public class CarController : MonoBehaviour
 
     private void Update()
     {
-        if(tractionControlOn)
+        ignitonInput = Input.GetAxis("Ignition");
+        brakeInput = Input.GetAxis("Brake");
+        shiftRandom = Random.Range(1000, 2500);
+        shiftInput = Input.GetAxis("Shitft");
+        if (tractionControlOn)
         {
             tcText.text = "TC:on";
         }
@@ -74,9 +85,13 @@ public class CarController : MonoBehaviour
         {
             engineStatus.text = "Engine Status:broken";
         }
-        if (Input.GetKeyDown(KeyCode.I) && clutch == 2) // startCar
+        if (ignitonInput == 1 && clutch == 2) // startCar
         {
             engineOn = !engineOn;
+        }
+        if(ignitonInput == 0 && clutch == 2 && currentRPM == 0)
+        {
+            engineOn = false;
         }
 
         if (!engineOn)
@@ -90,23 +105,22 @@ public class CarController : MonoBehaviour
         clutch = 1f - clutchInvers;
 
         kmhText.text = "KMH:" + (rb.velocity.magnitude * 3.6f).ToString(format: "000");
-
-        int shiftRandom = Random.Range(1000, 2500);
-        if (Input.GetKeyDown(KeyCode.LeftShift) && clutch == 2) // Shift up
+        if (Input.GetAxisRaw("Shitft") > 0)
         {
-            currentGear++;
-            if (!engineIsBroke)
+            if (!shiftInputPressed)
             {
-                currentRPM = currentRPM - shiftRandom;
+                shiftInputPressed = true;
+                ShiftUp();
             }
         }
-        else if (Input.GetKeyDown(KeyCode.LeftControl) && currentGear > 1 && clutch == 2) // Shift down
+        else if(Input.GetAxisRaw("Shitft") < 0)
         {
-            currentGear--;
-            if (!engineIsBroke)
-            {
-                currentRPM = currentRPM + shiftRandom;
-            }
+            shiftInputPressed = true;
+            ShiftDown();
+        }
+        else
+        {
+            shiftInputPressed = false;
         }
 
         // Toggle Traction Control
@@ -115,7 +129,29 @@ public class CarController : MonoBehaviour
             tractionControlOn = !tractionControlOn;
         }
     }
+    void ShiftUp()
+    {
+        if (currentGear <= maxGear && clutch == 2) // Assuming maxGear is the maximum gear
+        {
+            currentGear++;
+            if (!engineIsBroke)
+            {
+                currentRPM -= shiftRandom;
+            }
+        }
+    }
 
+    void ShiftDown()
+    {
+        if (currentGear > 1 && clutch == 2)
+        {
+            currentGear--;
+            if (!engineIsBroke)
+            {
+                currentRPM += shiftRandom;
+            }
+        }
+    }
     private void FixedUpdate()
     {
         string currentRPMstring = currentRPM.ToString(format: "0000");
@@ -140,7 +176,7 @@ public class CarController : MonoBehaviour
             else
             {
                 int random = Random.Range(-50, 50);
-                currentRPM = Mathf.Lerp(currentRPM, Mathf.Max(idleRPM, maxRPM / 2 * gasInput) + random, Time.deltaTime);
+                currentRPM = Mathf.Lerp(currentRPM, Mathf.Max(idleRPM, maxRPM * gasInput) + random, Time.deltaTime * .5f);
                 currentAcceleration = 0f;
             }
             if (currentRPM < maxRPM && currentGear != 0 && engineOn)
@@ -161,7 +197,7 @@ public class CarController : MonoBehaviour
                 backRight.motorTorque = 0f;
             }
 
-            if (gasInput == -1)
+            if (gasInput == -1 || brakeInput > 0)
             {
                 currentBrakeForce = brakeForce;
             }
