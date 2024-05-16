@@ -5,24 +5,25 @@ using UnityEngine.UIElements;
 
 public class aicarcontroller : MonoBehaviour
 {
-
+    public float deadzone;
     public int laps;
 
 
-    public float fuel;
-    public float normalspeed;
-    public float speed;
-    public float lowfuelspeed;
     public int current;
     public List<Transform> checkpoints = new List<Transform>();
-    public CharacterController characterController;
+   
     float f = 0;
     public float turnspeed;
 
-    public WheelCollider frontright;
-    public WheelCollider frontleft;
-    public WheelCollider backright;
-    public WheelCollider backleft;
+    public WheelCollider frontRight;
+    public WheelCollider frontLeft;
+    public WheelCollider backRight;
+    public WheelCollider backLeft;
+
+    public Transform frontRightM;
+    public Transform frontLeftM;
+    public Transform backRightM;
+    public Transform backLeftM;
 
     public float accel;
     public float currentaccel;
@@ -54,13 +55,13 @@ public class aicarcontroller : MonoBehaviour
             currentbreakpower = 0;
         }
 
-        frontright.motorTorque = currentaccel;
-        frontleft.motorTorque = currentaccel;
+        frontRight.motorTorque = currentaccel;
+        frontLeft.motorTorque = currentaccel;
 
-        backright.brakeTorque = currentbreakpower;
-        backleft.brakeTorque = currentbreakpower;
-        frontleft.brakeTorque = currentbreakpower;
-        frontright.brakeTorque = currentbreakpower;
+        backRight.brakeTorque = currentbreakpower;
+        backLeft.brakeTorque = currentbreakpower;
+        frontLeft.brakeTorque = currentbreakpower;
+        frontRight.brakeTorque = currentbreakpower;
 
         
         
@@ -72,31 +73,54 @@ public class aicarcontroller : MonoBehaviour
         var lookrot = Quaternion.LookRotation(dir);
         Vector3 localtoaicheckpoint = gameObject.transform.InverseTransformPoint(checkpoints[current].transform.position);
 
-        Debug.Log(lookrot.y + transform.rotation.y);
+        Debug.Log(localtoaicheckpoint);
 
-        if (localtoaicheckpoint.x > 0)
+        if (localtoaicheckpoint.x > deadzone)
         {
             currentturnpower = maxturnpower * -1;
         }
-        else if (localtoaicheckpoint.x < 0)
+        else if (localtoaicheckpoint.x < -deadzone)
         {
             currentturnpower = maxturnpower * 1;
+        }
+        else
+        {
+            currentturnpower = 0;
         }
 
 
 
 
+        UpdateWheel(frontLeft, frontLeftM);
+        UpdateWheel(frontRight, frontRightM);
+        UpdateWheel(backLeft, backLeftM);
+        UpdateWheel(backRight, backRightM);
 
-
-
-
-
-
-        frontleft.steerAngle = currentturnpower;
-        frontright.steerAngle = currentturnpower;
-
-
+        frontLeft.steerAngle = currentturnpower;
+        frontRight.steerAngle = currentturnpower;
     }
+
+    
+
+
+
+
+
+
+
+        
+
+
+    private void UpdateWheel(WheelCollider col, Transform trans)
+    {
+        Vector3 position;
+        Quaternion rotation;
+        col.GetWorldPose(out position, out rotation);
+
+        trans.position = position;
+        trans.rotation = rotation;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "checkpoint")
