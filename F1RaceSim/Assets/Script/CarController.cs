@@ -24,6 +24,7 @@ public class CarController : MonoBehaviour
     public TextMeshProUGUI tcText;
 
     // Car parameters
+    public GameObject steeringWheel;
     public AnimationCurve hpToRPMCurve;
     public float acceleration = 500f;
     public float brakeForce = 300f;
@@ -39,9 +40,9 @@ public class CarController : MonoBehaviour
     public bool engineIsBroke;
     public bool engineOn;
     public bool tractionControlOn = true; // Traction Control toggle
-    public float gasInput;
+    private float gasInput;
     public float brakeInput;
-    public float ignitonInput;
+    private float ignitonInput;
     public float shiftInput;
     private float clutch;
     private float clutchInvers;
@@ -50,6 +51,7 @@ public class CarController : MonoBehaviour
     private float currentRPM = 0f;
     private float currentTurnAngle = 0f;
     public int currentGear = 1;
+    public float steeringSensitivity = 1.0f;
     public float[] gearRatios = { 3.5f, 2.5f, 1.8f, 1.4f };
 
     private Rigidbody rb;
@@ -61,6 +63,8 @@ public class CarController : MonoBehaviour
 
     private void Update()
     {
+      
+        UpdateSteeringWheel();
         ignitonInput = Input.GetAxis("Ignition");
         brakeInput = Input.GetAxis("Brake");
         shiftRandom = Random.Range(1000, 2500);
@@ -115,8 +119,11 @@ public class CarController : MonoBehaviour
         }
         else if(Input.GetAxisRaw("Shitft") < 0)
         {
-            shiftInputPressed = true;
-            ShiftDown();
+            if (!shiftInputPressed)
+            {
+                shiftInputPressed = true;
+                ShiftDown();
+            }
         }
         else
         {
@@ -168,10 +175,19 @@ public class CarController : MonoBehaviour
 
             if (clutch == 1)
             {
-                int random = Random.Range(-50, 50);
-                float wheelRPM = Mathf.Abs((backRight.rpm + backLeft.rpm) / 2f) * gearRatios[currentGear] * differentialRatio;
-                currentRPM = Mathf.Lerp(currentRPM, Mathf.Max(idleRPM - 100, wheelRPM), Time.deltaTime * 3f);
-                currentAcceleration = (hpToRPMCurve.Evaluate(currentRPM / maxRPM) * acceleration / currentRPM) * gearRatios[currentGear] * differentialRatio * 5252f * clutch;
+                // Engine braking when the brakes are applied
+                if (brakeInput > 0)
+                {
+                    currentRPM -= brakeForce * Time.deltaTime;
+                }
+                else
+                {
+                    // Engine acceleration
+                    int random = Random.Range(-50, 50);
+                    float wheelRPM = Mathf.Abs((backRight.rpm + backLeft.rpm) / 2f) * gearRatios[currentGear] * differentialRatio;
+                    currentRPM = Mathf.Lerp(currentRPM, Mathf.Max(idleRPM - 100, wheelRPM), Time.deltaTime * 3f);
+                    currentAcceleration = (hpToRPMCurve.Evaluate(currentRPM / maxRPM) * acceleration / currentRPM) * gearRatios[currentGear] * differentialRatio * 5252f * clutch;
+                }
             }
             else
             {
@@ -197,11 +213,6 @@ public class CarController : MonoBehaviour
                 backRight.motorTorque = 0f;
             }
 
-            if (gasInput == -1 || brakeInput > 0)
-            {
-                currentBrakeForce = brakeForce;
-            }
-
             if (currentRPM < 1000 && clutch == 1)
             {
                 EngineStall();
@@ -217,11 +228,18 @@ public class CarController : MonoBehaviour
                 EngineStall();
             }
         }
-
-        frontRight.brakeTorque = currentBrakeForce;
-        frontLeft.brakeTorque = currentBrakeForce;
-        backLeft.brakeTorque = currentBrakeForce;
-        backRight.brakeTorque = currentBrakeForce;
+        if (brakeInput == 1)
+        {
+            gasInput = 0f;
+            ApplyBrakes();
+        }
+        else
+        {
+            frontRight.brakeTorque = 0;
+            frontLeft.brakeTorque = 0;
+            backLeft.brakeTorque = 0;
+            backRight.brakeTorque = 0;
+        }
 
         // Update wheel positions and rotations
         UpdateWheel(frontLeft, frontLeftM);
@@ -229,6 +247,7 @@ public class CarController : MonoBehaviour
         UpdateWheel(backLeft, backLeftM);
         UpdateWheel(backRight, backRightM);
     }
+
 
     private void UpdateWheel(WheelCollider col, Transform trans)
     {
@@ -246,9 +265,29 @@ public class CarController : MonoBehaviour
         engineOn = false;
         engineIsBroke = true;
     }
-
+    private void ApplyBrakes()
+    {
+        Debug.Log("baking");
+        // Apply brakes to all wheels
+        frontRight.brakeTorque = brakeForce;
+        frontLeft.brakeTorque = brakeForce;
+        backLeft.brakeTorque = brakeForce;
+        backRight.brakeTorque = brakeForce;
+    }
     private void EngineStall()
     {
         engineOn = false;
+    }
+    private void UpdateSteeringWheel()
+    {
+        // Calculate the rotation angle based on the current turn angle and sensitivity
+        float rotationAngle = currentTurnAngle * steeringSensitivity;
+
+        // Apply rotation to the steering wheel around its up axis
+        steeringWheel.transform.localRotation = Quaternion.Euler(
+            steeringWheel.transform.localRotation.eulerAngles.x,
+            rotationAngle,
+            steeringWheel.transform.localRotation.eulerAngles.z
+        );
     }
 }
