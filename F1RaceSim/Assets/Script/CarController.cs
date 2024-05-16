@@ -384,15 +384,13 @@ public class CarController : MonoBehaviour
         if (collisionForce >= 1000) // Adjust the threshold as needed
         {
             Debug.Log("Collision force: " + collisionForce);
-
+            Debug.Log("Crash - Lip broken");
+            lipPart.broken = true;
             // Decide which part should break based on collision force
             if (collisionForce >= 2000)
             {
                 Debug.Log("Crash - Spoiler broken");
                 spolierPart.broken = true;
-            }
-            else
-            {
                 Debug.Log("Crash - Lip broken");
                 lipPart.broken = true;
             }
