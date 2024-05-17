@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UIElements;
 
 public class aicarcontroller : MonoBehaviour
@@ -8,6 +9,12 @@ public class aicarcontroller : MonoBehaviour
     public float deadzone;
     public int laps;
 
+    public float timelap;
+    public float time;
+
+    public float fastesttimelap;
+    
+    public float brakedeadzone;
 
     public int current;
     public List<Transform> checkpoints = new List<Transform>();
@@ -37,9 +44,17 @@ public class aicarcontroller : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        StartCoroutine(TimerRoutine());
     }
-
+    IEnumerator TimerRoutine()
+    {
+        WaitForSeconds delay = new WaitForSeconds(1);
+        while (true)
+        {
+            timelap += 1;
+            yield return delay;
+        }
+    }
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -63,9 +78,22 @@ public class aicarcontroller : MonoBehaviour
         frontLeft.brakeTorque = currentbreakpower;
         frontRight.brakeTorque = currentbreakpower;
 
-        
-        
 
+        Vector3 localtoaicheckpoint2 = gameObject.transform.InverseTransformPoint(checkpoints[current + 1].transform.position);
+
+        if (localtoaicheckpoint2.x > brakedeadzone)
+        {
+            accel = -400 + localtoaicheckpoint2.x;
+        }
+        else if (localtoaicheckpoint2.x < -brakedeadzone)
+        {
+            accel = -400 + localtoaicheckpoint2.x * -1;
+
+        }
+        else
+        {
+            accel = -600;
+        }
 
         var dir = checkpoints[current].position - gameObject.transform.position;
         
@@ -132,7 +160,12 @@ public class aicarcontroller : MonoBehaviour
                 }
                 current = 0;
                 laps += 1;
-                
+                time = timelap;
+                timelap = 0;
+                if (time < fastesttimelap)
+                {
+                    fastesttimelap = time;
+                }
             }
             else
             {
