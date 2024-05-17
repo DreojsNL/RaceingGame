@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TreeSpread : MonoBehaviour
 {
-    public GameObject treePrefab; // Reference to the tree prefab to be instantiated
+    public GameObject[] treePrefabs; // Array of tree prefabs to be instantiated
     public BoxCollider spawnArea; // Reference to the box collider representing the area where trees will be spawned
     public int numberOfTrees = 10; // Number of trees to be spawned
 
@@ -23,7 +23,8 @@ public class TreeSpread : MonoBehaviour
         for (int i = 0; i < numberOfTrees; i++)
         {
             Vector3 randomPosition = bottomCenter + new Vector3(Random.Range(-bottomExtents.x, bottomExtents.x), 0, Random.Range(-bottomExtents.z, bottomExtents.z));
-            Instantiate(treePrefab, randomPosition, Quaternion.identity);
+            GameObject randomTreePrefab = treePrefabs[Random.Range(0, treePrefabs.Length)]; // Randomly select a tree prefab from the array
+            Instantiate(randomTreePrefab, randomPosition, Quaternion.identity);
         }
     }
 }

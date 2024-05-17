@@ -61,11 +61,13 @@ public class CarController : MonoBehaviour
     public AudioSource engineAudio;
     public float minPitch = 0.5f;
     public float maxPitch = 2.0f;
+    private float savedAccel;
 
     private Rigidbody rb;
 
     private void Start()
     {
+        savedAccel = acceleration;
         rb = GetComponent<Rigidbody>();
         engineAudio = GetComponent<AudioSource>();
     }
@@ -195,11 +197,29 @@ public class CarController : MonoBehaviour
         }
         if (currentGear <= maxGear && clutch == 2 && !isReversed) // Assuming maxGear is the maximum gear
         {
-            currentGear++;
-            if (!engineIsBroke)
+            if(currentRPM >= 2500 && currentRPM <= 7500 && engineOn)
             {
-                currentRPM -= shiftRandom;
+                acceleration += 100;
+                Invoke("ResetAccel", 5f);
+                currentGear++;
+                if (!engineIsBroke)
+                {
+                    currentRPM -= shiftRandom;
+                }
             }
+            else if (currentRPM >= 2500 && currentRPM >= 7500 && engineOn)
+            {
+                currentGear++;
+                if (!engineIsBroke)
+                {
+                    currentRPM -= shiftRandom;
+                }
+            }
+            else
+            {
+                EngineStall();
+            }
+
         }
     }
 
@@ -223,6 +243,10 @@ public class CarController : MonoBehaviour
             gearText.text = "R";
             acceleration = acceleration * -1;
         }
+    }
+    private void ResetAccel()
+    {
+        acceleration = savedAccel;
     }
     private void UpdateEngineAudioPitch()
     {
@@ -387,7 +411,7 @@ public class CarController : MonoBehaviour
             Debug.Log("Crash - Lip broken");
             lipPart.broken = true;
             // Decide which part should break based on collision force
-            if (collisionForce >= 1000000)
+            if (collisionForce >= 1000000 && kmhNumber >= 100)
             {
                 Debug.Log("Crash - Spoiler broken");
                 spolierPart.broken = true;
