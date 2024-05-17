@@ -7705,6 +7705,11 @@ PrefabInstance:
       objectReference: {fileID: 895194392}
     - target: {fileID: 8645606136277073694, guid: 5c39af7e92894da4781cceac02a723b9,
         type: 3}
+      propertyPath: brakeForce
+      value: 2000
+      objectReference: {fileID: 0}
+    - target: {fileID: 8645606136277073694, guid: 5c39af7e92894da4781cceac02a723b9,
+        type: 3}
       propertyPath: engineStatus
       value: 
       objectReference: {fileID: 1683253975}
