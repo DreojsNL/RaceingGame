@@ -75,7 +75,7 @@ public class CarController : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
@@ -222,7 +222,8 @@ public class CarController : MonoBehaviour
             }
             else
             {
-                EngineStall();
+                engineOn = false;
+                currentGear = 1;
             }
 
         }
