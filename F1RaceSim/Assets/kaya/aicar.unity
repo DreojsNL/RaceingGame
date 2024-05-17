@@ -340,7 +340,7 @@ Transform:
   m_GameObject: {fileID: 324309909}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -18.599998, y: 1, z: 155.7}
+  m_LocalPosition: {x: -43.7, y: 1, z: 160.6}
   m_LocalScale: {x: 3.3511, y: 3.3511, z: 3.3511}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -445,7 +445,7 @@ Transform:
   m_GameObject: {fileID: 651528306}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -108.7, y: 1, z: 146.2}
+  m_LocalPosition: {x: -133.5, y: 1, z: 120.6}
   m_LocalScale: {x: 3.3511, y: 3.3511, z: 3.3511}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -550,7 +550,7 @@ Transform:
   m_GameObject: {fileID: 1297200592}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -121.4, y: 1, z: 83}
+  m_LocalPosition: {x: -113.1, y: 1, z: 51.2}
   m_LocalScale: {x: 3.3511, y: 3.3511, z: 3.3511}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -971,7 +971,7 @@ Transform:
   m_GameObject: {fileID: 1920124204}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -116.3, y: 1, z: 120}
+  m_LocalPosition: {x: -126.6, y: 1, z: 79.6}
   m_LocalScale: {x: 3.3511, y: 3.3511, z: 3.3511}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1076,7 +1076,7 @@ Transform:
   m_GameObject: {fileID: 2011918198}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.6500015, y: 1, z: 91.2}
+  m_LocalPosition: {x: 0.3, y: 1, z: 121.3}
   m_LocalScale: {x: 3.3511, y: 3.3511, z: 3.3511}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1144,6 +1144,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: aicar
+      objectReference: {fileID: 0}
+    - target: {fileID: 1923505490177590300, guid: ecaa2191b9ec4634ea749c03453a59c7,
+        type: 3}
+      propertyPath: breakpower
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1923505490177590300, guid: ecaa2191b9ec4634ea749c03453a59c7,
+        type: 3}
+      propertyPath: brakedeadzone
+      value: 3.52
       objectReference: {fileID: 0}
     - target: {fileID: 1923505490177590300, guid: ecaa2191b9ec4634ea749c03453a59c7,
         type: 3}

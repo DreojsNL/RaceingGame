@@ -83,11 +83,11 @@ public class aicarcontroller : MonoBehaviour
 
         if (localtoaicheckpoint2.x > brakedeadzone)
         {
-            accel = -300;
+            accel = -400 + localtoaicheckpoint2.x;
         }
         else if (localtoaicheckpoint2.x < -brakedeadzone)
         {
-            accel = -300;
+            accel = -400 + localtoaicheckpoint2.x * -1;
 
         }
         else
