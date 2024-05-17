@@ -101,7 +101,6 @@ public class aicarcontroller : MonoBehaviour
         var lookrot = Quaternion.LookRotation(dir);
         Vector3 localtoaicheckpoint = gameObject.transform.InverseTransformPoint(checkpoints[current].transform.position);
 
-        Debug.Log(localtoaicheckpoint);
 
         if (localtoaicheckpoint.x > deadzone)
         {
